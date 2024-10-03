@@ -1,0 +1,325 @@
+---
+// hangmanGame.astro
+---
+
+<div id="hangman-game" class="game-container">
+	<h2>¡Adivina la Palabra!</h2>
+	
+	<!-- Menú desplegable para seleccionar la categoría -->
+	<label for="category-select">Selecciona una categoría:</label>
+	<select id="category-select">
+	  <option value="animals">Animales</option>
+	  <option value="jobs">Trabajos</option>
+	  <option value="fruits">Frutas</option>
+	  <option value="sports">Deportes</option>
+	  <option value="countries">Países</option>
+	  <option value="colors">Colores</option>
+	  <option value="foods">Comidas</option>
+	  <option value="technology">Tecnología</option>
+	</select>
+	
+	<div id="word-display"></div>
+	
+	<div id="hangman-drawing">
+	  <div class="gallows"></div>
+	  <div class="head"></div>
+	  <div class="body"></div>
+	  <div class="left-arm"></div>
+	  <div class="right-arm"></div>
+	  <div class="left-leg"></div>
+	  <div class="right-leg"></div>
+	</div>
+	
+	<div id="keyboard"></div>
+	<div id="message"></div>
+	<button id="new-game-btn">Nuevo Juego</button>
+  </div>
+  
+  <style>
+	/* Your CSS styles remain unchanged */
+	#hangman-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; /* Reducido */
+  background-color: #f0f0f0;
+  border-radius: 8px; /* Reducido */
+  padding: 10px; /* Reducido */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Reducido */
+}
+
+	#word-display {
+	  font-size: 2rem;
+	  letter-spacing: 0.5rem;
+	  color: #333;
+	  font-family: 'Arial', sans-serif;
+	}
+	#hangman-drawing {
+	  width: 200px;
+	  height: 250px;
+	  border: 2px solid #333;
+	  position: relative;
+	  background-color: #fff;
+	  border-radius: 5px;
+	}
+	.gallows {
+	  width: 10px;
+	  height: 150px;
+	  background-color: black;
+	  position: absolute;
+	  left: 50px;
+	  top: 0;
+	}
+	.head, .body, .left-arm, .right-arm, .left-leg, .right-leg {
+	  display: none;
+	  position: absolute;
+	  background-color: #333;
+	}
+	.head {
+	  width: 30px;
+	  height: 30px;
+	  border-radius: 50%;
+	  top: 10px;
+	  left: 85px;
+	}
+	.body {
+	  width: 5px;
+	  height: 60px;
+	  top: 40px;
+	  left: 100px;
+	}
+	.left-arm {
+	  width: 5px;
+	  height: 40px;
+	  top: 50px;
+	  left: 95px;
+	  transform: rotate(45deg);
+	}
+	.right-arm {
+	  width: 5px;
+	  height: 40px;
+	  top: 50px;
+	  left: 105px;
+	  transform: rotate(-45deg);
+	}
+	.left-leg {
+	  width: 5px;
+	  height: 40px;
+	  top: 100px;
+	  left: 95px;
+	  transform: rotate(30deg);
+	}
+	.right-leg {
+	  width: 5px;
+	  height: 40px;
+	  top: 100px;
+	  left: 105px;
+	  transform: rotate(-30deg);
+	}
+	#keyboard {
+	  display: grid;
+	  grid-template-columns: repeat(7, 1fr);
+	  gap: 5px;
+	}
+	#keyboard button {
+	  padding: 10px;
+	  font-size: 1rem;
+	  cursor: pointer;
+	  background-color: #007bff;
+	  color: white;
+	  border: none;
+	  border-radius: 5px;
+	  transition: background-color 0.3s;
+	}
+	#keyboard button:hover {
+	  background-color: #0056b3;
+	}
+	#message {
+	  font-size: 1.5rem;
+	  font-weight: bold;
+	  color: #d9534f;
+	}
+	#new-game-btn {
+	  padding: 10px 20px;
+	  font-size: 1rem;
+	  cursor: pointer;
+	  background-color: #28a745;
+	  color: white;
+	  border: none;
+	  border-radius: 5px;
+	  transition: background-color 0.3s;
+	}
+	#new-game-btn:hover {
+	  background-color: #218838;
+	}
+  </style>
+  
+  <script type="module">
+	const wordLists = {
+  animals: [
+      "PERRO", "GATO", "ELEFANTE", "LEÓN", "TIGRE", "CABALLO", "DOLPHIN", "GIRAFA",
+      "RATÓN", "SERPIENTE", "CANGURO", "PANDA", "TORTUGA", "AGUILA", "FELINO", "LAGARTIJA",
+      "OSO", "CONEJO", "KOALA", "CROCODILO", "HIPOPÓTAMO", "CABRA", "ZORRO", "LOBO",
+      "RINOCERONTE", "GORILA", "BALLENA", "CANGREJO", "PULPO", "FOCA", "CALAMAR", "CAMELLO"
+  ],
+  jobs: [
+      "MÉDICO", "INGENIERO", "CARPINTERO", "PINTOR", "DOCENTE", "CANTANTE", "CHEF",
+      "VETERINARIO", "CERRAJERO", "MECÁNICO", "CANTINERO", "BARBERO", "CARNICERO",
+      "PANADERO", "FARMACÉUTICO", "ARQUITECTO", "CIRUJANO", "PILOTO", "RECEPCIONISTA",
+      "ABOGADO", "ENFERMERO", "CONTADOR", "POLICÍA", "BOMBERO", "ELECTRICISTA", "JUEZ",
+      "PROGRAMADOR", "ESCRITOR", "FOTÓGRAFO", "AGRICULTOR", "PSICÓLOGO", "DISEÑADOR", "ADMINISTRADOR"
+  ],
+  fruits: [
+      "MANZANA", "NARANJA", "BANANA", "FRESA", "KIWI", "MELÓN", "PIÑA", "CEREZA",
+      "UVA", "MANGO", "PAPAYA", "LIMÓN", "PERA", "CÓCTEL", "COCO", "FRAMBUESA",
+      "ALBARICOQUE", "CIRUELA", "SANDÍA", "GRANADA", "TAMARINDO", "DURAZNO", "MORA", 
+      "FRUTILLA", "GUAYABA", "LICHI", "MARACUYÁ", "NECTARINA", "ARÁNDANO", "MANDARINA", "PLÁTANO"
+  ],
+  sports: [
+      "FÚTBOL", "BÁSQUETBOL", "TENIS", "NATACIÓN", "CICLISMO", "VOLEIBOL", "GOLF",
+      "RUGBY", "CRÍQUET", "BOXEO", "HOCKEY", "ESQUÍ", "SURF", "PATINAJE", "ATLETISMO",
+      "BÉISBOL", "ARTESMARCIALES", "TIROCONARCO", "BALONMANO", "JUDO", "TAEKWONDO", 
+      "ESGRIMA", "SÓFTBOL", "ESCALADA", "LACROSSE", "BADMINTON", "TRIATLÓN", "REMO", "SQUASH"
+  ],
+  countries: [
+      "ARGENTINA", "BRASIL", "CANADÁ", "CHILE", "CHINA", "ESPAÑA", "FRANCIA", "ALEMANIA",
+      "ITALIA", "JAPÓN", "MÉXICO", "PERÚ", "COLOMBIA", "RUSIA", "SUECIA", "AUSTRALIA",
+      "INDIA", "EGIPTO", "NORUEGA", "SUIZA", "GRECIA", "DINAMARCA", "ISLANDIA", "SINGAPUR",
+      "PAÍSESBAJOS", "NIGERIA", "VIETNAM", "FILIPINAS", "INDONESIA", "KENIA", "IRLANDA", "PORTUGAL"
+  ],
+  colors: [
+      "ROJO", "AZUL", "VERDE", "AMARILLO", "NARANJA", "MORADO", "ROSADO", "NEGRO", "BLANCO",
+      "GRIS", "VIOLETA", "CELESTE", "MARRÓN", "LILA", "TURQUESA", "CARMESÍ", "DORADO",
+      "PLATEADO", "MAGENTA", "CAQUI", "CIAN", "ESMERALDA", "CORAL", "AQUA", "MALVA", "OLIVA"
+  ],
+  foods: [
+      "PIZZA", "PASTA", "TACOS", "SUSHI", "HAMBURGUESA", "LASAÑA", "ENSALADA", "QUESO", 
+      "PAN", "SÁNDWICH", "SOPA", "POLLO", "CARNE", "PESCADO", "ARROZ", "CEREALES", "TOSTADA",
+      "EMPANADA", "PAELLA", "TORTILLA", "GAZPACHO", "SALMÓN", "BISTEC", "HUEVOS", "TOFU", 
+      "NACHOS", "BURRITO", "CHURROS", "PAPASFRITAS", "AREPA", "CROISSANT", "CACAO"
+  ],
+  technology: [
+      "COMPUTADORA", "SMARTPHONE", "TABLETA", "IMPRESORA", "ROUTER", "TECLADO", "MOUSE",
+      "AURICULARES", "MONITOR", "MICRÓFONO", "CÁMARA", "USB", "CARGADOR", "LÁPIZÓPTICO",
+      "ALTAVOZ", "BATERÍARECARGABLE", "DRON", "IMPRESORA3D", "SMARTWATCH", "CONSOLA",
+      "ROBOT", "PROCESADOR", "TARJETADEVIDEO", "MEMORIARAM", "DISCODURO", "SSD", "FUENTEDEALIMENTACIÓN", 
+      "MOTHERBOARD", "ANTENA", "MICROCHIP", "SOFTWARE", "HARDWARE"
+  ]
+};
+  
+	let selectedWord = '';
+	let guessedWord = [];
+	let wrongGuesses = 0;
+	const maxWrongGuesses = 6;
+  
+	const wordDisplay = document.getElementById('word-display');
+	const hangmanDrawing = document.getElementById('hangman-drawing');
+	const keyboard = document.getElementById('keyboard');
+	const message = document.getElementById('message');
+	const newGameBtn = document.getElementById('new-game-btn');
+	const categorySelect = document.getElementById('category-select');
+  
+	// Seleccionar las partes del ahorcado
+	const hangmanParts = [
+	  document.querySelector('.head'),
+	  document.querySelector('.body'),
+	  document.querySelector('.left-arm'),
+	  document.querySelector('.right-arm'),
+	  document.querySelector('.left-leg'),
+	  document.querySelector('.right-leg')
+	];
+  
+	// Inicializar el juego con la categoría seleccionada
+	function initGame() {
+	  const selectedCategory = categorySelect.value;
+	  const wordList = wordLists[selectedCategory];
+	  selectedWord = wordList[Math.floor(Math.random() * wordList.length)];
+	  guessedWord = Array(selectedWord.length).fill('_');
+	  wrongGuesses = 0;
+	  updateWordDisplay();
+	  createKeyboard();
+	  hideHangmanParts();
+	  if (message) {
+		message.textContent = '';
+	  }
+	}
+  
+	// Actualizar la visualización de la palabra
+	function updateWordDisplay() {
+	  wordDisplay.textContent = guessedWord.join(' ');
+	}
+  
+	// Crear el teclado de letras
+	function createKeyboard() {
+	  keyboard.innerHTML = '';
+	  for (let i = 65; i <= 90; i++) { // Letras A-Z
+		const letter = String.fromCharCode(i);
+		const button = document.createElement('button');
+		button.textContent = letter;
+		button.addEventListener('click', () => handleGuess(letter));
+		keyboard.appendChild(button);
+	  }
+	}
+  
+	// Manejar la adivinanza de una letra
+	function handleGuess(letter) {
+	  const button = Array.from(keyboard.children).find(btn => btn.textContent === letter);
+	  if (!button || button.disabled) return;
+  
+	  button.disabled = true; // Deshabilitar el botón una vez clicado
+  
+	  if (selectedWord.includes(letter)) {
+		for (let i = 0; i < selectedWord.length; i++) {
+		  if (selectedWord[i] === letter) {
+			guessedWord[i] = letter;
+		  }
+		}
+		updateWordDisplay();
+		checkWin();
+	  } else {
+		wrongGuesses++;
+		showHangmanPart(wrongGuesses - 1);
+		checkLose();
+	  }
+	}
+  
+	// Mostrar una parte del ahorcado
+	function showHangmanPart(index) {
+	  hangmanParts[index].style.display = 'block';
+	}
+  
+	// Ocultar todas las partes del ahorcado
+	function hideHangmanParts() {
+	  hangmanParts.forEach(part => (part.style.display = 'none'));
+	}
+  
+	// Verificar si el jugador ha ganado
+	function checkWin() {
+	  if (!guessedWord.includes('_')) {
+		message.textContent = '¡Ganaste!';
+		disableAllButtons();
+	  }
+	}
+  
+	// Verificar si el jugador ha perdido
+	function checkLose() {
+	  if (wrongGuesses === maxWrongGuesses) {
+		message.textContent = `¡Perdiste! La palabra era ${selectedWord}`;
+		disableAllButtons();
+	  }
+	}
+  
+	// Deshabilitar todos los botones del teclado
+	function disableAllButtons() {
+	  Array.from(keyboard.children).forEach(button => {
+		button.disabled = true;
+	  });
+	}
+  
+	// Manejar la creación de un nuevo juego
+	newGameBtn.addEventListener('click', initGame);
+  
+	// Iniciar el juego con la primera categoría seleccionada
+	initGame();
+  </script>
+  

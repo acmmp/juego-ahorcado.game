@@ -1,0 +1,148 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(to right, #6a11cb, #2575fc); /* Fondo degradado */
+}
+
+h1 {
+    color: white;
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Sombra de texto */
+}
+
+.game-container {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con opacidad */
+    border-radius: 15px; /* Bordes redondeados */
+    padding: 20px; /* Espaciado interno */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    width: 80%; /* Ancho responsivo aumentado */
+    max-width: 600px; /* Ancho máximo aumentado */
+}
+
+#hangman-figure {
+    margin: 20px 0;
+    height: 200px;
+    width: 100px;
+    position: relative;
+}
+
+.gallows {
+    width: 10px;
+    height: 150px;
+    background-color: black;
+    position: absolute;
+    left: 50px;
+    top: 0;
+}
+
+.head, .body, .left-arm, .right-arm, .left-leg, .right-leg {
+    display: none;
+    position: absolute;
+    background-color: black;
+}
+
+.head {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    top: 10px;
+    left: 25px;
+}
+
+.body {
+    width: 10px;
+    height: 60px;
+    top: 50px;
+    left: 45px;
+}
+
+.left-arm {
+    width: 50px;
+    height: 10px;
+    top: 70px;
+    left: 0;
+}
+
+.right-arm {
+    width: 50px;
+    height: 10px;
+    top: 70px;
+    right: 0;
+}
+
+.left-leg {
+    width: 50px;
+    height: 10px;
+    top: 120px;
+    left: 0;
+}
+
+.right-leg {
+    width: 50px;
+    height: 10px;
+    top: 120px;
+    right: 0;
+}
+
+#word-container {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+#keyboard {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px; /* Espacio entre botones */
+    margin: 20px 0; /* Margen */
+}
+
+#keyboard button {
+    padding: 12px; /* Aumentar el padding de los botones */
+    font-size: 1.2rem; /* Aumentar el tamaño de la fuente */
+    background-color: #007bff; /* Color del botón */
+    color: white; /* Color del texto del botón */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Bordes redondeados */
+    transition: background-color 0.3s, transform 0.2s; /* Transición suave */
+}
+
+#keyboard button:hover {
+    background-color: #0056b3; /* Más oscuro al pasar el mouse */
+    transform: translateY(-2px); /* Efecto de elevación al hover */
+}
+
+#reset-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+
+#new-game-btn {
+    padding: 12px 20px; /* Aumentar el padding del botón de nuevo juego */
+    font-size: 1.2rem; /* Aumentar el tamaño de la fuente */
+    background-color: #28a745; /* Botón verde */
+    color: white; /* Color del texto del botón */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Bordes redondeados */
+    transition: background-color 0.3s, transform 0.2s; /* Transición suave */
+    margin-top: 20px; /* Margen superior */
+}
+
+#new-game-btn:hover {
+    background-color: #218838; /* Más oscuro al pasar el mouse */
+    transform: translateY(-2px); /* Efecto de elevación al hover */
+}
+
+#message {
+    font-size: 1.5rem; /* Aumentar el tamaño del mensaje */
+    font-weight: bold;
+    color: #d9534f; /* Color rojo para mensajes */
+    margin-top: 20px; /* Margen superior */
+}
